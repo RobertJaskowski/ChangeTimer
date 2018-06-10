@@ -12,11 +12,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
 
 import javax.swing.*;
 import java.io.IOException;
@@ -29,6 +30,12 @@ import java.util.prefs.Preferences;
 public class TimerController implements Initializable {
 
     private AgeBoxController ageBoxController;
+    private OptionsController optionsController;
+
+    private Stage stage;
+
+    @FXML
+    private BorderPane borderPane;
 
     @FXML
     private Button optionsButton;
@@ -39,6 +46,9 @@ public class TimerController implements Initializable {
     @FXML
     private Label timeBottom;
 
+    private Preferences preferences;
+
+
     private static boolean savedAge;
     private static int age;
 
@@ -47,6 +57,7 @@ public class TimerController implements Initializable {
 
     private long yearsToSeventy;
 
+    private long elapsedYears;
     private long elapsedDays;
     private long elapsedHours;
     private long elapsedMinutes;
@@ -57,6 +68,7 @@ public class TimerController implements Initializable {
     private long minutesInMilli = secondsInMilli * 60;
     private long hoursInMilli = minutesInMilli * 60;
     private long daysInMilli = hoursInMilli * 24;
+    private long yearsInMilli = daysInMilli * 365;
 
     private Calendar calendar;
     private Calendar calendarLater = Calendar.getInstance();
@@ -67,11 +79,6 @@ public class TimerController implements Initializable {
 
     private long different;
 
-
-    @FXML
-    public void openSettings() {
-        System.out.println("opening settings");
-    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -85,7 +92,7 @@ public class TimerController implements Initializable {
         optionsButton.setScaleY(0.5);
     }
 
-    void start(){
+    void start() {
         getPrefs();
 
         if (savedAge) {
@@ -96,10 +103,49 @@ public class TimerController implements Initializable {
     }
 
     private void getPrefs() {
-        Preferences preferences = Preferences.userNodeForPackage(TimerController.class);
+        preferences = Preferences.userNodeForPackage(TimerController.class);
         savedAge = preferences.getBoolean("savedAge", false);
         age = preferences.getInt("age", 70);
+    }
 
+    private void displayOptions() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../resources/options.fxml"));
+            Parent root = fxmlLoader.load();
+
+
+            optionsController = fxmlLoader.getController();
+
+
+            Stage stage = new Stage();
+
+
+            MovableWindow movableWindow = new MovableWindow(stage, root);
+            movableWindow.allowMoving();
+
+
+            optionsController.setStage(stage);
+            optionsController.setTimerController(this);
+
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add("resources/options.css");
+            scene.setFill(Color.TRANSPARENT);
+
+            stage.setScene(scene);
+
+            stage.setTitle("Options");
+            stage.toFront();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.TRANSPARENT);
+
+            stage.show();
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Couldn't load window");
+        }
     }
 
     private void displayAgeWindow() {
@@ -129,8 +175,6 @@ public class TimerController implements Initializable {
             stage.setScene(scene);
 
             stage.setTitle("Age check");
-            stage.setX(0);
-            stage.setY(0);
             stage.toFront();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initStyle(StageStyle.TRANSPARENT);
@@ -145,55 +189,22 @@ public class TimerController implements Initializable {
     }
 
     private void runTimer() {
-
-//todo load age from file not from answer
-
-//        age = AgeBoxController.answer;
         yearsToSeventy = 70 - age;
-
-//        long leftInSeconds = yearsToSeventy * 365 * 24 * 60 * 60;
-//        seconds = leftInSeconds / 60 * 60 * 24 * 365;
-
-
-//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/M/dd hh:mm:ss");
 
         calendar = Calendar.getInstance();
         calendarLater.set((int) (calendar.get(Calendar.YEAR) + yearsToSeventy), Calendar.JANUARY, 1, 1, 0, 0);
 
-//        System.out.println("-" + calendar.getTime());
-//        System.out.println("-" + calendarLater.getTime());
-
-
-//        String currentYear = String.valueOf(calendar.get(Calendar.YEAR));
-
-
         dateLater = calendarLater.getTime();
-
-        System.out.println(elapsedDays + ":" + elapsedHours + ":" + elapsedMinutes + ":" + elapsedSeconds);
-
-//        try {
-////            Date now = simpleDateFormat.parse(new Date().toString());
-////            Date later = simpleDateFormat.parse(currentYear);
-//
-//
-//
-//
-//
-//
-//
-//        } catch (Exception e) {
-//            System.out.println(e.toString());
-//        }
-
 
         Timer timer = new Timer(1000, e -> Platform.runLater(() -> {
             calendar = Calendar.getInstance();
-
             dateNow = calendar.getTime();
 
             different = dateLater.getTime() - dateNow.getTime();
-            System.out.println("diff" + different);
+//            System.out.println("diff" + different);
 
+            elapsedYears = different / yearsInMilli;
+            different = different % yearsInMilli;
 
             elapsedDays = different / daysInMilli;
             different = different % daysInMilli;
@@ -223,9 +234,41 @@ public class TimerController implements Initializable {
 
 //                    time.setText(elapsedHours + ":" + elapsedMinutes + ":" + elapsedSeconds);
             time.setText(elapsedHours + ":" + elMinStr + ":" + elSecStr);
-            timeBottom.setText(yearsToSeventy + " Y " + elapsedDays + " Days");
+            timeBottom.setText(elapsedYears + " Y " + elapsedDays + " Days");
         }));
         timer.setDelay(1000);
         timer.start();
+    }
+
+    @FXML
+    public void openSettings() {
+        displayOptions();
+    }
+
+    @FXML
+    void mouseEntered(MouseEvent event) {
+        borderPane.getStyleClass().remove("paneLeft");
+        System.out.println("mouseenteres");
+    }
+
+    @FXML
+    void mouseExited(MouseEvent event) {
+        borderPane.getStyleClass().add("paneLeft");
+        System.out.println("mouseexits");
+    }
+
+    @FXML
+    void mouseDrag(MouseEvent event) {
+        double stageX = stage.getX();
+        double stageY = stage.getY();
+
+        preferences.putDouble("stageX", stageX);
+        preferences.putDouble("stageY", stageY);
+
+        System.out.println("drag: " + stageX + " " + stageY + " event " + event.toString());
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
 }

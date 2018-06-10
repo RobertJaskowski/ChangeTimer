@@ -1,4 +1,10 @@
 .root{
     -fx-background-radius: 25;
+    -fx-background-color: #383838;
 }
-
+.paneEntered{
+   -fx-background-color: black;
+}
+.paneLeft{
+    -fx-background-color: rgba(48,48,48,0);
+}

@@ -1,0 +1,9 @@
+.root{
+    -fx-background-radius: 25;
+}
+.check-box .box{
+    -fx-background-color: rgba(0,0,0,0);
+    -fx-border-color: grey;
+    -fx-border-radius: 3px;
+}
+
