@@ -20,7 +20,9 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,7 +34,7 @@ public class TimerController implements Initializable {
     private AgeBoxController ageBoxController;
     private OptionsController optionsController;
 
-    private Stage stage;
+    private volatile Stage stage;
 
     @FXML
     private BorderPane borderPane;
@@ -51,6 +53,8 @@ public class TimerController implements Initializable {
 
     private static boolean savedAge;
     private static int age;
+//    private static boolean startup;
+//    private static boolean stayOnFront;
 
 
     //for timer
@@ -85,7 +89,8 @@ public class TimerController implements Initializable {
 
         start();
 
-        Image image = new Image(getClass().getResourceAsStream("../resources/cog.png"));
+//        Image image = new Image(getClass().getResourceAsStream("../resources/cog.png"));
+        Image image = new Image(getClass().getResourceAsStream("/resources/cog.png"));
 
         optionsButton.setGraphic(new ImageView(image));
         optionsButton.setScaleX(0.5);
@@ -97,20 +102,39 @@ public class TimerController implements Initializable {
 
         if (savedAge) {
             runTimer();
+            applySettings();
         } else {
             displayAgeWindow();
+            addToStartup();
         }
+
+
+    }
+
+    private String getExecPath() {
+        String path = null;
+        try {
+            path = new File(TimerController.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        return path;
     }
 
     private void getPrefs() {
+        borderPane.getStyleClass().add("paneLeft");
         preferences = Preferences.userNodeForPackage(TimerController.class);
         savedAge = preferences.getBoolean("savedAge", false);
         age = preferences.getInt("age", 70);
+//        startup = preferences.getBoolean("startup", false);
+//        stayOnFront = preferences.getBoolean("stayOnFront", true);
+
     }
 
     private void displayOptions() {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../resources/options.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/resources/options.fxml"));
             Parent root = fxmlLoader.load();
 
 
@@ -150,7 +174,7 @@ public class TimerController implements Initializable {
 
     private void displayAgeWindow() {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../resources/ageBox.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/resources/ageBox.fxml"));
             Parent root = fxmlLoader.load();
 
 
@@ -266,6 +290,72 @@ public class TimerController implements Initializable {
         preferences.putDouble("stageY", stageY);
 
         System.out.println("drag: " + stageX + " " + stageY + " event " + event.toString());
+    }
+
+    public void applySettings() {
+        Platform.runLater(() -> {
+
+            setStageTimer();
+
+            if (preferences.getBoolean("startup", true)) {
+                System.out.println("addd from settings");
+                try {
+                    Runtime.getRuntime().exec("REG ADD \"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\" /V \"ChangeTimer\" /t REG_SZ /F /D \"" + getExecPath() + "\"\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.out.println("Error adding to startup");
+                }
+            } else {
+                System.out.println("delete");
+                try {
+                    Runtime.getRuntime().exec("REG DELETE \"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\" /V \"ChangeTimer\" /F");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.out.println("Error adding to startup");
+                }
+            }
+        });
+
+    }
+
+    private void setStageTimer() {
+
+        while(stage.equals(null))
+        {
+//            System.out.println("timer");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        stage.setAlwaysOnTop(preferences.getBoolean("stayOnFront", true));
+
+
+//        Timer timer = new Timer(2000, e -> Platform.runLater(() -> {
+//            System.out.println("timer");
+//            if (stage.equals(null)) {
+//                setStageTimer();
+//                System.out.println("is null");
+//            } else {
+//                System.out.println("is on top");
+//            }
+//        }));
+//
+//        timer.start();
+
+
+    }
+
+    private void addToStartup() {
+        System.out.println("adddonapp startup");
+        try {
+            Runtime.getRuntime().exec("REG ADD \"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\" /V \"ChangeTimer\" /t REG_SZ /F /D \"" + getExecPath() + "\"\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Error adding to startup");
+        }
     }
 
     public void setStage(Stage stage) {

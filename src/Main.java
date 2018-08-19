@@ -1,6 +1,7 @@
 import Model.MovableWindow;
 import controller.TimerController;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -24,7 +25,7 @@ public class Main extends Application {
         Stage secendaryStage = new Stage();
         secendaryStage.initOwner(primaryStage);
 
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("resources/timer.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/resources/timer.fxml"));
         Parent root = fxmlLoader.load();
 
 
@@ -33,7 +34,7 @@ public class Main extends Application {
 
         Scene scene = new Scene(root,300,185);
         scene.setFill(Color.TRANSPARENT);
-        scene.getStylesheets().add("resources/main.css");
+        scene.getStylesheets().add("/resources/main.css");
 
         timerController = fxmlLoader.getController();
         timerController.setStage(secendaryStage);
@@ -47,6 +48,8 @@ public class Main extends Application {
         secendaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.show();
         secendaryStage.show();
+
+        Platform.setImplicitExit(false);
 
     }
 

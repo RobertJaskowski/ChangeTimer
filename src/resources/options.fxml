@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="185.0" prefWidth="300.0" style="-fx-background-color: #484848;" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.OptionsController">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="185.0" prefWidth="300.0" style="-fx-background-color: #484848;" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.OptionsController">
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES" maxWidth="148.0" minWidth="10.0" prefWidth="107.0" />
         <ColumnConstraints hgrow="SOMETIMES" maxWidth="85.0" minWidth="10.0" prefWidth="66.0" />
@@ -22,9 +22,9 @@
     </rowConstraints>
     <children>
         <Label text="Change Timer - IM" textFill="#ababab" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
-        <CheckBox fx:id="startup" mnemonicParsing="false" text="Startup" textFill="WHITE" GridPane.rowIndex="1" />
-        <CheckBox fx:id="stayOnFront" mnemonicParsing="false" style="-fx-border-image-width: 2;" text="Stay on front" textFill="WHITE" GridPane.rowIndex="2" />
-        <Button fx:id="saveSettings" mnemonicParsing="false" style="-fx-background-color: rgba(0,0,0,0); -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 25;" text="Save" textFill="WHITE" GridPane.rowIndex="3" />
+        <CheckBox fx:id="startupCheckbox" mnemonicParsing="false" text="Startup" textFill="WHITE" GridPane.rowIndex="1" />
+        <CheckBox fx:id="stayOnFrontCheckbox" mnemonicParsing="false" style="-fx-border-image-width: 2;" text="Stay on front" textFill="WHITE" GridPane.rowIndex="2" />
+        <Button mnemonicParsing="false" onAction="#saveSettings" style="-fx-background-color: rgba(0,0,0,0); -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 25;" text="Save" textFill="WHITE" GridPane.rowIndex="3" />
     </children>
     <padding>
         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />

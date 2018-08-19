@@ -15,25 +15,34 @@ public class OptionsController implements Initializable {
 
     private TimerController timerController;
     private Stage stage;
+    private Preferences preferences;
+
+    private static boolean stayOnFront;
+    private static boolean startup;
 
 
     @FXML
-    private CheckBox startup;
+    private CheckBox startupCheckbox;
 
     @FXML
-    private CheckBox stayOnFront;
+    private CheckBox stayOnFrontCheckbox;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        preferences = Preferences.userNodeForPackage(TimerController.class);
+        startup = preferences.getBoolean("startup",true);
+        stayOnFront = preferences.getBoolean("stayOnFront", true);
 
+        startupCheckbox.setSelected(startup);
+        stayOnFrontCheckbox.setSelected(stayOnFront);
     }
 
     @FXML
     void saveSettings(ActionEvent event) {
-        Preferences preferences = Preferences.userNodeForPackage(TimerController.class);
-        preferences.putBoolean("startup", startup.isSelected());
-        preferences.putBoolean("stayOnFront", stayOnFront.isSelected());
+        preferences.putBoolean("startup", startupCheckbox.isSelected());
+        preferences.putBoolean("stayOnFront", stayOnFrontCheckbox.isSelected());
         stage.close();
+        timerController.applySettings();
     }
 
     void setStage(Stage stage) {
