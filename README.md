@@ -6,7 +6,7 @@ Tested on windows.
 
 <a href="https://github.com/RobertJaskowski/ChangeTimer/raw/master/out/artifacts/ChangeTimer/ChangeTimer.jar">Download</a>
 
-<img src="changetimer.PNG" height="150px">
+
 
 
 <b>Used:</b>
